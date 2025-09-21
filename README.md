@@ -1,12 +1,12 @@
 # GrillCheese Middleware
 
-A complete toolkit for creating pixel art games with Love2D, featuring a custom sprite format, compiler, and rendering library.
+A complete toolkit for making game development easier with Love2D, featuring a custom sprite format, compiler, and rendering library.
 
 ## Overview
 
-GrillCheese Middleware provides everything you need to build pixel art games:
+GrillCheese Middleware provides everything you need to streamline your game development workflow:
 
-- **Custom .spr sprite format** - Optimized for pixel art with alpha transparency
+- **Custom .spr sprite format** - Efficient binary format with alpha transparency
 - **sprc converter** - Convert PNG images to .spr format
 - **sprlib rendering library** - Load and display .spr sprites in Love2D
 - **GrillCheese Script compiler** - Modern scripting language with typed arrays, table declarations, and logical operators
@@ -34,7 +34,7 @@ love.graphics.draw(sprite, x, y)
 ## Features
 
 ### 🎨 Sprite System
-- **Custom .spr format** - Efficient binary format for pixel art
+- **Custom .spr format** - Efficient binary format for game assets
 - **Alpha transparency** - Full support for PNG alpha channels
 - **16-color palette** - Optimized color mapping system
 - **Variable BPP** - 1-4 bits per pixel based on color count
@@ -44,7 +44,7 @@ love.graphics.draw(sprite, x, y)
 - **sprc converter** - PNG to .spr conversion with color optimization
 - **GrillCheese compiler** - Custom scripting language
 - **VS Code extension** - Complete IDE integration
-- **Example projects** - Ready-to-run demos
+- **Comprehensive documentation** - Complete guides and references
 
 ### 📚 Documentation
 - **Complete API reference** - All functions and formats documented
@@ -83,7 +83,6 @@ grillcheese-middleware/
 │   ├── init.lua           # Main library
 │   └── colors.lua         # Color palette
 ├── gcscript/              # Compiler source
-├── example/               # Example projects
 ├── vscode-extension/      # VS Code extension
 └── docs/                  # Documentation
 ```
@@ -137,4 +136,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-**GrillCheese Middleware** - Making pixel art games simple and fun! 🎮✨
+**GrillCheese Middleware** - Making game development simple and fun! 🎮✨
