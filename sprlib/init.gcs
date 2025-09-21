@@ -88,7 +88,7 @@ pub fn load(path) {
         next_alpha = fn() { return 15 }  // Default to fully opaque
     }
     
-    local colorTable = colors.colors()
+    local colorTable = colors()
     local y = 0
     while (y < h) {
         local x = 0
