@@ -486,7 +486,8 @@ GrillCheese Script automatically provides Love2D callback functions:
 // Game initialization
 priv fn love.load() {
     local sprite = load("player.spr")
-    int x = 100, y = 100
+    int x = 100
+    int y = 100
 }
 
 // Game update loop
@@ -579,8 +580,10 @@ import { load, render } from "sprlib"
 
 // Game state
 local player = nil
-float x = 100, y = 100
-float velocityX = 0, velocityY = 0
+float x = 100
+float y = 100
+float velocityX = 0
+float velocityY = 0
 float gravity = 500
 float jumpPower = 300
 bool onGround = false
