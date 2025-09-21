@@ -1,0 +1,119 @@
+// Color palette for sprite library
+
+pub fn colors() {
+    local colorTable = {}
+    
+    // Color 0: Black
+    local color0 = {}
+    color0.r = 0
+    color0.g = 0
+    color0.b = 0
+    colorTable[0] = color0
+    
+    // Color 1: White
+    local color1 = {}
+    color1.r = 1
+    color1.g = 1
+    color1.b = 1
+    colorTable[1] = color1
+    
+    // Color 2: Red
+    local color2 = {}
+    color2.r = 1
+    color2.g = 0
+    color2.b = 0
+    colorTable[2] = color2
+    
+    // Color 3: Green
+    local color3 = {}
+    color3.r = 0
+    color3.g = 1
+    color3.b = 0
+    colorTable[3] = color3
+    
+    // Color 4: Blue
+    local color4 = {}
+    color4.r = 0
+    color4.g = 0
+    color4.b = 1
+    colorTable[4] = color4
+    
+    // Color 5: Yellow
+    local color5 = {}
+    color5.r = 1
+    color5.g = 1
+    color5.b = 0
+    colorTable[5] = color5
+    
+    // Color 6: Magenta
+    local color6 = {}
+    color6.r = 1
+    color6.g = 0
+    color6.b = 1
+    colorTable[6] = color6
+    
+    // Color 7: Cyan
+    local color7 = {}
+    color7.r = 0
+    color7.g = 1
+    color7.b = 1
+    colorTable[7] = color7
+    
+    // Color 8: Gray
+    local color8 = {}
+    color8.r = 0.5
+    color8.g = 0.5
+    color8.b = 0.5
+    colorTable[8] = color8
+    
+    // Color 9: Orange
+    local color9 = {}
+    color9.r = 0.9
+    color9.g = 0.4
+    color9.b = 0.1
+    colorTable[9] = color9
+    
+    // Color 10: Light Green
+    local color10 = {}
+    color10.r = 0.4
+    color10.g = 0.9
+    color10.b = 0.1
+    colorTable[10] = color10
+    
+    // Color 11: Light Blue
+    local color11 = {}
+    color11.r = 0.1
+    color11.g = 0.4
+    color11.b = 0.9
+    colorTable[11] = color11
+    
+    // Color 12: Pink
+    local color12 = {}
+    color12.r = 0.8
+    color12.g = 0.2
+    color12.b = 0.6
+    colorTable[12] = color12
+    
+    // Color 13: Purple
+    local color13 = {}
+    color13.r = 0.6
+    color13.g = 0.2
+    color13.b = 0.8
+    colorTable[13] = color13
+    
+    // Color 14: Teal
+    local color14 = {}
+    color14.r = 0.2
+    color14.g = 0.8
+    color14.b = 0.6
+    colorTable[14] = color14
+    
+    // Color 15: Light Yellow
+    local color15 = {}
+    color15.r = 0.95
+    color15.g = 0.95
+    color15.b = 0.5
+    colorTable[15] = color15
+    
+    return colorTable
+}

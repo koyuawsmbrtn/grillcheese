@@ -1,0 +1,44 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Compiled files (keep source files)
+*.love
+!**/init.lua
+!gcscript/compiler.lua
+!example/compile.lua
+
+# Node modules (for vscode-extension)
+vscode-extension/node_modules/
+
+# Build outputs
+vscode-extension/out/
+vscode-extension/dist/
+vscode-extension/*.vsix
+
+# Debug files
+debug_*
+test_*

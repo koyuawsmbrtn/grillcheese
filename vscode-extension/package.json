@@ -1,0 +1,93 @@
+{
+  "name": "grillcheese-script",
+  "displayName": "GrillCheese Script",
+  "description": "Language support for GrillCheese Script with Löve2D IntelliSense, typed arrays, table declarations, and modern syntax",
+  "version": "1.1.0",
+  "publisher": "grillcheese",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "grillcheese",
+    "lua",
+    "love2d",
+    "game-development",
+    "typed-arrays",
+    "table-declarations",
+    "logical-operators",
+    "modern-syntax"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "grillcheese",
+        "aliases": [
+          "GrillCheese Script",
+          "grillcheese",
+          "gcs"
+        ],
+        "extensions": [
+          ".gcs"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "grillcheese",
+        "scopeName": "source.grillcheese",
+        "path": "./syntaxes/grillcheese.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "grillcheese",
+        "path": "./snippets/grillcheese.json"
+      }
+    ],
+    "configuration": {
+      "title": "GrillCheese Script",
+      "properties": {
+        "grillcheese.compilerPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the GrillCheese Script compiler"
+        },
+        "grillcheese.enableIntelliSense": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable IntelliSense for GrillCheese Script"
+        }
+      }
+    }
+  },
+  "activationEvents": [
+    "onLanguage:grillcheese"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "tsc -p ./ && npx vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  },
+  "author": "GrillCheese Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grillcheese/grillcheese-script"
+  },
+  "bugs": {
+    "url": "https://github.com/grillcheese/grillcheese-script/issues"
+  },
+  "homepage": "https://github.com/grillcheese/grillcheese-script#readme"
+}

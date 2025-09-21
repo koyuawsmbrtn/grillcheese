@@ -1,0 +1,153 @@
+#!/bin/bash
+
+# GrillCheese Script Compiler (gc)
+# Compiles .gcs files to .lua files
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Function to show usage
+show_usage() {
+    echo "Usage: gc [options] <input.gcs> [output.lua]"
+    echo ""
+    echo "Compile GrillCheese Script (.gcs) files to Lua (.lua) files"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help     Show this help message"
+    echo "  -v, --verbose  Show verbose output"
+    echo "  -o <file>      Specify output file"
+    echo ""
+    echo "Examples:"
+    echo "  gc main.gcs                    # Compile main.gcs to main.lua"
+    echo "  gc main.gcs -o output.lua      # Compile main.gcs to output.lua"
+    echo "  gc *.gcs                       # Compile all .gcs files in current directory"
+    echo ""
+    echo "The compiler will automatically:"
+    echo "  - Convert 0-indexed arrays to 1-indexed Lua arrays"
+    echo "  - Handle TypeScript-style imports/exports"
+    echo "  - Support public/private function visibility"
+    echo "  - Generate proper Lua code for Löve2D"
+}
+
+# Function to compile a single file
+compile_file() {
+    local input_file="$1"
+    local output_file="$2"
+    local verbose="$3"
+    
+    # Check if input file exists
+    if [ ! -f "$input_file" ]; then
+        echo -e "${RED}Error: Input file '$input_file' not found${NC}" >&2
+        return 1
+    fi
+    
+    # Check if input file has .gcs extension
+    if [[ "$input_file" != *.gcs ]]; then
+        echo -e "${YELLOW}Warning: Input file '$input_file' doesn't have .gcs extension${NC}" >&2
+    fi
+    
+    # If no output file specified, generate one
+    if [ -z "$output_file" ]; then
+        output_file="${input_file%.gcs}.lua"
+    fi
+    
+    # Show what we're doing
+    if [ "$verbose" = "true" ]; then
+        echo -e "${BLUE}Compiling:${NC} $input_file -> $output_file"
+    fi
+    
+    # Compile using Lua
+    if [ "$verbose" = "true" ]; then
+        # Show detailed error messages in verbose mode
+        if lua -e "
+            package.path = package.path .. ';$SCRIPT_DIR/gcscript/?.lua;$SCRIPT_DIR/gcscript/?/init.lua'
+            local gcscript = require('gcscript')
+            gcscript.compileFile('$input_file', '$output_file')
+        "; then
+            echo -e "${GREEN}✓ Successfully compiled:${NC} $output_file"
+            return 0
+        else
+            echo -e "${RED}✗ Compilation failed:${NC} $input_file" >&2
+            return 1
+        fi
+    else
+        # Suppress error messages in non-verbose mode
+        if lua -e "
+            package.path = package.path .. ';$SCRIPT_DIR/gcscript/?.lua;$SCRIPT_DIR/gcscript/?/init.lua'
+            local gcscript = require('gcscript')
+            gcscript.compileFile('$input_file', '$output_file')
+        " 2>/dev/null; then
+            echo -e "${GREEN}✓ Compiled:${NC} $output_file"
+            return 0
+        else
+            echo -e "${RED}✗ Compilation failed:${NC} $input_file" >&2
+            return 1
+        fi
+    fi
+}
+
+# Parse command line arguments
+VERBOSE=false
+OUTPUT_FILE=""
+INPUT_FILES=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -o)
+            OUTPUT_FILE="$2"
+            shift 2
+            ;;
+        -*)
+            echo -e "${RED}Error: Unknown option '$1'${NC}" >&2
+            echo "Use -h or --help for usage information"
+            exit 1
+            ;;
+        *)
+            INPUT_FILES+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Check if any input files were provided
+if [ ${#INPUT_FILES[@]} -eq 0 ]; then
+    echo -e "${RED}Error: No input files specified${NC}" >&2
+    echo "Use -h or --help for usage information"
+    exit 1
+fi
+
+# Compile each input file
+SUCCESS_COUNT=0
+TOTAL_COUNT=${#INPUT_FILES[@]}
+
+for input_file in "${INPUT_FILES[@]}"; do
+    if compile_file "$input_file" "$OUTPUT_FILE" "$VERBOSE"; then
+        ((SUCCESS_COUNT++))
+    fi
+done
+
+# Show summary
+if [ $SUCCESS_COUNT -eq $TOTAL_COUNT ]; then
+    if [ $TOTAL_COUNT -gt 1 ]; then
+        echo -e "${GREEN}✓ All $TOTAL_COUNT files compiled successfully${NC}"
+    fi
+    exit 0
+else
+    echo -e "${RED}✗ $((TOTAL_COUNT - SUCCESS_COUNT)) of $TOTAL_COUNT files failed to compile${NC}" >&2
+    exit 1
+fi

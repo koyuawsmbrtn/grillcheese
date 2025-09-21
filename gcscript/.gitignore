@@ -1,0 +1,24 @@
+# Compiled Lua files
+!init.lua
+!compiler.lua
+
+# Temporary files
+*.tmp
+*.temp
+
+# Debug files
+debug_*
+test_*
+
+# Backup files
+*.bak
+*.backup
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

@@ -1,0 +1,123 @@
+// Sprite library for loading custom sprite format
+
+import { colors } from "sprlib.colors"
+
+priv fn read_bits(data, bpp) {
+    local byte_index = 1
+    local bit_index = 0
+    
+    fn next() {
+        local val = 0
+    local i = 1
+    while (i <= bpp) {
+        if (byte_index > data.length) {
+            return nil
+        }
+        local b = data:byte(byte_index)
+        val = (val << 1) | ((b >> (7 - bit_index)) & 1)
+        bit_index = bit_index + 1
+        if (bit_index == 8) {
+            bit_index = 0
+            byte_index = byte_index + 1
+        }
+        i = i + 1
+    }
+        return val
+    }
+    
+    return next
+}
+
+pub fn load(path) {
+    local f = love.filesystem.newFile(path, "r")
+    if (!f) {
+        error("Failed to open file: " + path)
+    }
+    
+    local magic = f:read(4)
+    if (magic != "KSPR") {
+        error("Invalid sprite data")
+    }
+    
+    local data4 = f:read(4)
+    local w = data4:byte(1) + (data4:byte(2) * 256)
+    local h = data4:byte(3) + (data4:byte(4) * 256)
+    local bpp = f:read(1):byte()
+    local alpha_flag = f:read(1):byte()
+    local _ = f:read(2)  // Padding
+    
+    // Read pixel data
+    local pixel_data_size = math.ceil((w * h * bpp) / 8)
+    local data = f:read(pixel_data_size)
+    
+    // Read alpha data if present
+    local alpha_data = nil
+    if (alpha_flag == 1) {
+        local alpha_data_size = math.ceil((w * h) / 2)  // 2 alpha values per byte (4 bits each)
+        alpha_data = f:read(alpha_data_size)
+    }
+    
+    local _ = f:close()
+    
+    local img = love.image.newImageData(w, h)
+    local next_pixel = read_bits(data, bpp)
+    
+    // Function to read alpha values
+    local next_alpha = nil
+    if (alpha_data) {
+        local alpha_byte_index = 1
+        local alpha_bit_index = 0
+        next_alpha = fn() {
+            if (alpha_byte_index > alpha_data.length) {
+                return 15  // Default to fully opaque
+            }
+            local b = alpha_data:byte(alpha_byte_index)
+            local alpha_val = 0
+            if (alpha_bit_index == 0) {
+                alpha_val = bit.band(bit.rshift(b, 4), 15)  // Upper 4 bits
+            } else {
+                alpha_val = bit.band(b, 15)  // Lower 4 bits
+                alpha_bit_index = 0
+                alpha_byte_index = alpha_byte_index + 1
+                return alpha_val
+            }
+            alpha_bit_index = 1
+            return alpha_val
+        }
+    } else {
+        next_alpha = fn() { return 15 }  // Default to fully opaque
+    }
+    
+    local colorTable = colors.colors()
+    local y = 0
+    while (y < h) {
+        local x = 0
+        while (x < w) {
+            local idx = next_pixel()
+            local col = colorTable[idx]
+            local alpha_val = next_alpha()
+            local alpha_normalized = alpha_val / 15.0  // Convert from 0-15 to 0-1 range
+            local _ = img:setPixel(x, y, col.r, col.g, col.b, alpha_normalized)
+            x = x + 1
+        }
+        y = y + 1
+    }
+    
+    local sprite = love.graphics.newImage(img)
+    // Automatically set nearest filter for pixel-perfect rendering
+    sprite:setFilter("nearest", "nearest")
+    return sprite
+}
+
+pub fn render(sprite, x, y, scale) {
+    if (!sprite) {
+        return
+    }
+    
+    local currentScale = 1
+    if (scale) {
+        currentScale = scale
+    }
+    
+    love.graphics.draw(sprite, x, y, 0, currentScale, currentScale)
+}

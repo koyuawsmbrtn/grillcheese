@@ -1,0 +1,312 @@
+{
+  "Function Declaration": {
+    "prefix": "fn",
+    "body": [
+      "fn ${1:functionName}(${2:params}) {",
+      "\t${3:// function body}",
+      "}"
+    ],
+    "description": "Function declaration with fn keyword"
+  },
+  "Public Function Declaration": {
+    "prefix": "pub fn",
+    "body": [
+      "pub fn ${1:functionName}(${2:params}) {",
+      "\t${3:// function body}",
+      "}"
+    ],
+    "description": "Public function declaration"
+  },
+  "Private Function Declaration": {
+    "prefix": "priv fn",
+    "body": [
+      "priv fn ${1:functionName}(${2:params}) {",
+      "\t${3:// function body}",
+      "}"
+    ],
+    "description": "Private function declaration"
+  },
+  "Love2D Draw Function": {
+    "prefix": "love.draw",
+    "body": [
+      "priv fn love.draw() {",
+      "\t${1:// drawing code}",
+      "}"
+    ],
+    "description": "Love2D draw function"
+  },
+  "Love2D Update Function": {
+    "prefix": "love.update",
+    "body": [
+      "priv fn love.update(float dt) {",
+      "\t${1:// update code}",
+      "}"
+    ],
+    "description": "Love2D update function"
+  },
+  "Love2D Load Function": {
+    "prefix": "love.load",
+    "body": [
+      "priv fn love.load() {",
+      "\t${1:// initialization code}",
+      "}"
+    ],
+    "description": "Love2D load function"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "if (${1:condition}) {",
+      "\t${2:// code}",
+      "} else {",
+      "\t${3:// code}",
+      "}"
+    ],
+    "description": "If statement with curly braces"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": [
+      "while (${1:condition}) {",
+      "\t${2:// code}",
+      "}"
+    ],
+    "description": "While loop"
+  },
+  "Array Declaration": {
+    "prefix": "array",
+    "body": [
+      "array = [${1:1, 2, 3}]"
+    ],
+    "description": "Array declaration"
+  },
+  "Typed Array Declaration": {
+    "prefix": "string[]",
+    "body": [
+      "string[] ${1:arrayName} = [${2:\"item1\", \"item2\"}]"
+    ],
+    "description": "Typed string array declaration"
+  },
+  "Boolean Declaration": {
+    "prefix": "bool",
+    "body": [
+      "bool ${1:variableName} = ${2:true}"
+    ],
+    "description": "Boolean variable declaration"
+  },
+  "Integer Declaration": {
+    "prefix": "int",
+    "body": [
+      "int ${1:variableName} = ${2:0}"
+    ],
+    "description": "Integer variable declaration"
+  },
+  "Float Declaration": {
+    "prefix": "float",
+    "body": [
+      "float ${1:variableName} = ${2:0.0}"
+    ],
+    "description": "Float variable declaration"
+  },
+  "Love2D Graphics Print": {
+    "prefix": "love.graphics.print",
+    "body": [
+      "love.graphics.print(${1:\"text\"}, ${2:x}, ${3:y})"
+    ],
+    "description": "Love2D graphics print function"
+  },
+  "Love2D Graphics Rectangle": {
+    "prefix": "love.graphics.rectangle",
+    "body": [
+      "love.graphics.rectangle(\"fill\", ${1:x}, ${2:y}, ${3:width}, ${4:height})"
+    ],
+    "description": "Love2D graphics rectangle function"
+  },
+  "Love2D Graphics Circle": {
+    "prefix": "love.graphics.circle",
+    "body": [
+      "love.graphics.circle(\"fill\", ${1:x}, ${2:y}, ${3:radius})"
+    ],
+    "description": "Love2D graphics circle function"
+  },
+  "Love2D Graphics Set Color": {
+    "prefix": "love.graphics.setColor",
+    "body": [
+      "love.graphics.setColor(${1:r}, ${2:g}, ${3:b}, ${4:a})"
+    ],
+    "description": "Love2D graphics set color function"
+  },
+  "Love2D Keyboard Is Down": {
+    "prefix": "love.keyboard.isDown",
+    "body": [
+      "love.keyboard.isDown(\"${1:key}\")"
+    ],
+    "description": "Love2D keyboard is down function"
+  },
+  "Love2D Mouse Get Position": {
+    "prefix": "love.mouse.getPosition",
+    "body": [
+      "love.mouse.getPosition()"
+    ],
+    "description": "Love2D mouse get position function"
+  },
+  "Import Named": {
+    "prefix": "import",
+    "body": [
+      "import { ${1:function1}, ${2:function2} } from \"${3:module}\""
+    ],
+    "description": "Import named exports from module"
+  },
+  "Import Default": {
+    "prefix": "import default",
+    "body": [
+      "import ${1:name} from \"${2:module}\""
+    ],
+    "description": "Import default export from module"
+  },
+  "Import All": {
+    "prefix": "import all",
+    "body": [
+      "import * as ${1:namespace} from \"${2:module}\""
+    ],
+    "description": "Import all exports as namespace"
+  },
+  "Export Named": {
+    "prefix": "export",
+    "body": [
+      "export { ${1:function1}, ${2:function2} }"
+    ],
+    "description": "Export named items"
+  },
+  "Export Default": {
+    "prefix": "export default",
+    "body": [
+      "export default ${1:item}"
+    ],
+    "description": "Export default item"
+  },
+  "Sprlib Import": {
+    "prefix": "sprlib",
+    "body": [
+      "import { load, render } from \"sprlib\""
+    ],
+    "description": "Import sprlib functions"
+  },
+  "For Loop C-style": {
+    "prefix": "for",
+    "body": [
+      "for (${1:int} ${2:i} = ${3:0}; ${2:i} < ${4:10}; ${2:i}++) {",
+      "\t${5:// code}",
+      "}"
+    ],
+    "description": "C-style for loop"
+  },
+  "String Declaration": {
+    "prefix": "string",
+    "body": [
+      "string ${1:variableName} = \"${2:value}\""
+    ],
+    "description": "String variable declaration"
+  },
+  "Table Declaration": {
+    "prefix": "table",
+    "body": [
+      "table ${1:tableName} = {",
+      "\t${2:key} = ${3:value},",
+      "\t${4:key2} = ${5:value2}",
+      "}"
+    ],
+    "description": "Table declaration with key-value pairs"
+  },
+  "Int Array Declaration": {
+    "prefix": "int[]",
+    "body": [
+      "int[] ${1:arrayName} = [${2:1, 2, 3, 4, 5}]"
+    ],
+    "description": "Integer array declaration"
+  },
+  "Float Array Declaration": {
+    "prefix": "float[]",
+    "body": [
+      "float[] ${1:arrayName} = [${2:1.0, 2.0, 3.0}]"
+    ],
+    "description": "Float array declaration"
+  },
+  "Bool Array Declaration": {
+    "prefix": "bool[]",
+    "body": [
+      "bool[] ${1:arrayName} = [${2:true, false, true}]"
+    ],
+    "description": "Boolean array declaration"
+  },
+  "Array Literal": {
+    "prefix": "array literal",
+    "body": [
+      "[${1:item1, item2, item3}]"
+    ],
+    "description": "Array literal with square brackets"
+  },
+  "Table Literal": {
+    "prefix": "table literal",
+    "body": [
+      "{",
+      "\t${1:key} = ${2:value},",
+      "\t${3:key2} = ${4:value2}",
+      "}"
+    ],
+    "description": "Table literal with key-value pairs"
+  },
+  "Logical AND": {
+    "prefix": "&&",
+    "body": [
+      "&& ${1:condition}"
+    ],
+    "description": "Logical AND operator"
+  },
+  "Logical OR": {
+    "prefix": "||",
+    "body": [
+      "|| ${1:condition}"
+    ],
+    "description": "Logical OR operator"
+  },
+  "Comparison Equal": {
+    "prefix": "==",
+    "body": [
+      "== ${1:value}"
+    ],
+    "description": "Equality comparison"
+  },
+  "Comparison Not Equal": {
+    "prefix": "!=",
+    "body": [
+      "!= ${1:value}"
+    ],
+    "description": "Inequality comparison"
+  },
+  "Array Access": {
+    "prefix": "array access",
+    "body": [
+      "${1:arrayName}[${2:index}]"
+    ],
+    "description": "Array element access (0-indexed)"
+  },
+  "Table Access": {
+    "prefix": "table access",
+    "body": [
+      "${1:tableName}.${2:property}"
+    ],
+    "description": "Table property access"
+  },
+  "While Loop with Array": {
+    "prefix": "while array",
+    "body": [
+      "local i = 0",
+      "while (i < ${1:arrayName}.length) {",
+      "\t${2:// process arrayName[i]}",
+      "\ti = i + 1",
+      "}"
+    ],
+    "description": "While loop to iterate through array"
+  }
+}

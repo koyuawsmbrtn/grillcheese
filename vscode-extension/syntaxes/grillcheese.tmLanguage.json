@@ -1,0 +1,268 @@
+{
+  "scopeName": "source.grillcheese",
+  "name": "GrillCheese Script",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#punctuation"
+    },
+    {
+      "include": "#imports"
+    },
+    {
+      "include": "#exports"
+    },
+    {
+      "include": "#array-literals"
+    },
+    {
+      "include": "#table-literals"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.grillcheese",
+          "begin": "//",
+          "end": "$"
+        },
+        {
+          "name": "comment.block.grillcheese",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.grillcheese",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.grillcheese",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.grillcheese",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.grillcheese",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.grillcheese",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.grillcheese",
+          "match": "\\b(if|else|elseif|while|for|return|break|continue)\\b"
+        },
+        {
+          "name": "keyword.other.grillcheese",
+          "match": "\\b(local|function|fn|pub|priv|true|false|nil|and|or|not|in|export|import|from|default|table)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.grillcheese",
+          "match": "\\b(string|bool|int|float|array|table)\\b"
+        },
+        {
+          "name": "storage.type.array.grillcheese",
+          "match": "\\b(string|bool|int|float)\\[\\]\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.grillcheese",
+          "match": "\\b(fn|function)\\s+\\w+"
+        },
+        {
+          "name": "support.function.love2d.grillcheese",
+          "match": "\\blove\\.\\w+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.logical.grillcheese",
+          "match": "&&|\\|\\|"
+        },
+        {
+          "name": "keyword.operator.comparison.grillcheese",
+          "match": "==|!=|~=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.arithmetic.grillcheese",
+          "match": "\\+|-|\\*|/|%|\\^|#|\\+\\+|--"
+        },
+        {
+          "name": "keyword.operator.assignment.grillcheese",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.other.grillcheese",
+          "match": "!|\\."
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.definition.grillcheese",
+          "match": "[\\[\\]{}();,]"
+        }
+      ]
+    },
+    "imports": {
+      "patterns": [
+        {
+          "name": "keyword.control.import.grillcheese",
+          "begin": "\\bimport\\b",
+          "end": "(?=;|$)",
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "name": "keyword.other.from.grillcheese",
+              "match": "\\bfrom\\b"
+            },
+            {
+              "name": "keyword.other.default.grillcheese",
+              "match": "\\bdefault\\b"
+            },
+            {
+              "name": "punctuation.definition.import.grillcheese",
+              "match": "[{},]"
+            }
+          ]
+        }
+      ]
+    },
+    "exports": {
+      "patterns": [
+        {
+          "name": "keyword.control.export.grillcheese",
+          "begin": "\\bexport\\b",
+          "end": "(?=;|$)",
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "name": "keyword.other.from.grillcheese",
+              "match": "\\bfrom\\b"
+            },
+            {
+              "name": "keyword.other.default.grillcheese",
+              "match": "\\bdefault\\b"
+            },
+            {
+              "name": "punctuation.definition.export.grillcheese",
+              "match": "[{},]"
+            }
+          ]
+        }
+      ]
+    },
+    "array-literals": {
+      "patterns": [
+        {
+          "name": "meta.array.literal.grillcheese",
+          "begin": "\\[",
+          "end": "\\]",
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#numbers"
+            },
+            {
+              "include": "#keywords"
+            },
+            {
+              "include": "#array-literals"
+            },
+            {
+              "include": "#table-literals"
+            }
+          ]
+        }
+      ]
+    },
+    "table-literals": {
+      "patterns": [
+        {
+          "name": "meta.table.literal.grillcheese",
+          "begin": "\\{",
+          "end": "\\}",
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#numbers"
+            },
+            {
+              "include": "#keywords"
+            },
+            {
+              "include": "#array-literals"
+            },
+            {
+              "include": "#table-literals"
+            },
+            {
+              "name": "keyword.operator.assignment.grillcheese",
+              "match": "="
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
