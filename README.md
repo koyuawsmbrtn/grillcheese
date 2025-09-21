@@ -97,22 +97,55 @@ grillcheese-middleware/
 ## Examples
 
 ### Basic Sprite Loading
-```lua
-import { load, render } from "sprlib"
-local sprite = load("character.spr")
-sprite:setFilter("nearest", "nearest")  -- Pixel-perfect scaling
-love.graphics.draw(sprite, 100, 100, 0, 4, 4)  -- 4x scaling
-```
-
-### GrillCheese Script
 ```gcs
-// Simple game loop
+import { load, render } from "sprlib"
+
+local sprite = nil
+
 priv fn love.load() {
-    local sprite = load("player.spr")
+    sprite = load("character.spr")
+    sprite:setFilter("nearest", "nearest")  // Pixel-perfect scaling
 }
 
 priv fn love.draw() {
-    love.graphics.draw(sprite, 0, 0)
+    render(sprite, 100, 100, 4)  // 4x scaling
+}
+```
+
+### Advanced Example
+```gcs
+import { load, render } from "sprlib"
+
+// Game state
+local player = nil
+float x = 100, y = 100
+bool isMoving = false
+
+priv fn love.load() {
+    player = load("player.spr")
+    player:setFilter("nearest", "nearest")
+}
+
+priv fn love.update(float dt) {
+    if (love.keyboard.isDown("left")) {
+        x = x - 200 * dt
+        isMoving = true
+    } else if (love.keyboard.isDown("right")) {
+        x = x + 200 * dt
+        isMoving = true
+    } else {
+        isMoving = false
+    }
+}
+
+priv fn love.draw() {
+    love.graphics.setColor(0.1, 0.1, 0.1, 1)
+    love.graphics.rectangle("fill", 0, 0, 800, 600)
+    
+    if (player) {
+        love.graphics.setColor(1, 1, 1, 1)
+        render(player, x, y, 4)
+    }
 }
 ```
 
