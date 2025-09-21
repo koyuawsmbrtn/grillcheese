@@ -117,7 +117,8 @@ import { load, render } from "sprlib"
 
 // Game state
 local player = nil
-float x = 100, y = 100
+float x = 100
+float y = 100
 bool isMoving = false
 
 priv fn love.load() {
