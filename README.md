@@ -104,7 +104,6 @@ local sprite = nil
 
 priv fn love.load() {
     sprite = load("character.spr")
-    sprite:setFilter("nearest", "nearest")  // Pixel-perfect scaling
 }
 
 priv fn love.draw() {
@@ -123,7 +122,6 @@ bool isMoving = false
 
 priv fn love.load() {
     player = load("player.spr")
-    player:setFilter("nearest", "nearest")
 }
 
 priv fn love.update(float dt) {
