@@ -407,7 +407,8 @@ local function parse(tokens)
         elseif op == "+" or op == "-" then return 6
         elseif op == "*" or op == "/" or op == "%" then return 7
         elseif op == ".." then return 8
-        elseif op == "&" or op == "|" or op == "~" then return 9
+        elseif op == "^" then return 9  -- Exponentiation has highest precedence
+        elseif op == "&" or op == "|" or op == "~" then return 10
         else return 0
         end
     end
@@ -551,37 +552,68 @@ local function parse(tokens)
         
         if token.type == TOKEN_TYPES.KEYWORD and token.value == "local" then
             advance() -- consume 'local'
-            local name = expect(TOKEN_TYPES.IDENTIFIER).value
-            local stmt = {type = "local_declaration", name = name}
             
-            if peek().value == "=" then
-                advance() -- consume '='
-                -- Check if this is an array declaration
-                if peek().type == TOKEN_TYPES.KEYWORD and peek().value == "array" then
-                    advance() -- consume 'array'
-                    expect(TOKEN_TYPES.PUNCTUATION, "{")
-                    
-                    local elements = {}
-                    while peek().value ~= "}" do
-                        table.insert(elements, parseExpression())
-                        if peek().value == "," then
-                            advance() -- consume ','
-                        end
-                    end
-                    expect(TOKEN_TYPES.PUNCTUATION, "}")
-                    
-                    return {type = "array_declaration", name = name, elements = elements}
-                else
-                    -- Check for anonymous function
-                    if peek().type == TOKEN_TYPES.KEYWORD and peek().value == "fn" then
-                        stmt.value = parseAnonymousFunction()
-                    else
-                        stmt.value = parseExpression()
-                    end
-                end
+            -- Parse multiple variable names
+            local names = {}
+            local name = expect(TOKEN_TYPES.IDENTIFIER).value
+            table.insert(names, name)
+            
+            -- Check for additional variable names
+            while peek().type == TOKEN_TYPES.PUNCTUATION and peek().value == "," do
+                advance() -- consume ','
+                local nextName = expect(TOKEN_TYPES.IDENTIFIER).value
+                table.insert(names, nextName)
             end
             
-            return stmt
+            -- Check if this is multiple assignment
+            if #names > 1 and peek().value == "=" then
+                advance() -- consume '='
+                local values = {}
+                
+                -- Parse multiple values
+                while peek().value ~= TOKEN_TYPES.NEWLINE and peek().type ~= TOKEN_TYPES.EOF do
+                    table.insert(values, parseExpression())
+                    if peek().type == TOKEN_TYPES.PUNCTUATION and peek().value == "," then
+                        advance() -- consume ','
+                    else
+                        break
+                    end
+                end
+                
+                return {type = "multiple_assignment", names = names, values = values}
+            else
+                -- Single variable declaration
+                local stmt = {type = "local_declaration", name = names[1]}
+                
+                if peek().value == "=" then
+                    advance() -- consume '='
+                    -- Check if this is an array declaration
+                    if peek().type == TOKEN_TYPES.KEYWORD and peek().value == "array" then
+                        advance() -- consume 'array'
+                        expect(TOKEN_TYPES.PUNCTUATION, "{")
+                        
+                        local elements = {}
+                        while peek().value ~= "}" do
+                            table.insert(elements, parseExpression())
+                            if peek().value == "," then
+                                advance() -- consume ','
+                            end
+                        end
+                        expect(TOKEN_TYPES.PUNCTUATION, "}")
+                        
+                        return {type = "array_declaration", name = names[1], elements = elements}
+                    else
+                        -- Check for anonymous function
+                        if peek().type == TOKEN_TYPES.KEYWORD and peek().value == "fn" then
+                            stmt.value = parseAnonymousFunction()
+                        else
+                            stmt.value = parseExpression()
+                        end
+                    end
+                end
+                
+                return stmt
+            end
         elseif token.type == TOKEN_TYPES.KEYWORD and token.value == "while" then
             advance() -- consume 'while'
             local condition = parseExpression()
@@ -1097,6 +1129,26 @@ generateStatement = function(stmt, publicFunctions, hasExports)
         local result = "local " .. stmt.name
         if stmt.value then
             result = result .. " = " .. generateExpression(stmt.value)
+            
+            -- If the value is an empty table literal, treat it as an array and add methods
+            if stmt.value.type == "table_literal" and not stmt.value.isKeyValue and #stmt.value.elements == 0 then
+                result = result .. "\n"
+                result = result .. stmt.name .. ".push = function(self, value) table.insert(self, value) end\n"
+                result = result .. stmt.name .. ".pop = function(self) return table.remove(self) end\n"
+                result = result .. stmt.name .. ".length = function(self) return #self end"
+            end
+        end
+        return result
+    elseif stmt.type == "multiple_assignment" then
+        local result = "local "
+        for i, name in ipairs(stmt.names) do
+            if i > 1 then result = result .. ", " end
+            result = result .. name
+        end
+        result = result .. " = "
+        for i, value in ipairs(stmt.values) do
+            if i > 1 then result = result .. ", " end
+            result = result .. generateExpression(value)
         end
         return result
     elseif stmt.type == "array_declaration" then
@@ -1105,7 +1157,11 @@ generateStatement = function(stmt, publicFunctions, hasExports)
             if i > 1 then result = result .. ", " end
             result = result .. generateExpression(element)
         end
-        result = result .. "}"
+        result = result .. "}\n"
+        -- Add array methods
+        result = result .. stmt.name .. ".push = function(self, value) table.insert(self, value) end\n"
+        result = result .. stmt.name .. ".pop = function(self) return table.remove(self) end\n"
+        result = result .. stmt.name .. ".length = function(self) return #self end"
         return result
     elseif stmt.type == "table_declaration" then
         return "local " .. stmt.name .. " = " .. generateExpression(stmt.value)

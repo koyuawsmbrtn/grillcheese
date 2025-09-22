@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Check if Love2D is installed
+# Check if Love2D is installed (needed for GCScript execution)
 if ! command -v love >/dev/null 2>&1; then
     echo -e "${RED}Error: Love2D is not installed or not in PATH${NC}" >&2
     echo "Please install Love2D to use sprc" >&2
@@ -53,9 +53,11 @@ convert_file() {
     local temp_dir=$(mktemp -d -t sprc_converter_XXXXXX)
     local temp_main="$temp_dir/main.lua"
     
-    # Create the converter script
+    # Create the GCScript runner
     cat > "$temp_main" << 'EOF'
--- PNG to .spr converter for sprlib
+-- GCScript runner for PNG to .spr conversion
+local gcscript = require("gcscript")
+
 function love.load()
     local args = love.arg.parseGameArguments(arg)
     
@@ -68,159 +70,24 @@ function love.load()
     local inputPath = args[1]
     local outputPath = args[2] or inputPath:gsub("%.png$", ".spr")
     
-    print("Converting PNG: " .. inputPath .. " -> " .. outputPath)
+    -- Load and run the GCScript converter
+    local success, result = pcall(function()
+        local converter = gcscript.load("sprlib.png_converter")
+        return converter.convert_png_to_spr(inputPath, outputPath)
+    end)
     
-    -- Load the PNG image
-    local imageData = love.image.newImageData(inputPath)
-    if not imageData then
-        print("Error: Could not load PNG file: " .. inputPath)
+    if not success then
+        print("Error: " .. tostring(result))
         love.event.quit()
         return
     end
     
-    local width = imageData:getWidth()
-    local height = imageData:getHeight()
-    
-    print("Image dimensions: " .. width .. "x" .. height)
-    
-    -- Use sprlib's predefined color palette
-    local sprlibColors = {
-        {r = 0, g = 0, b = 0},        -- 0: Black
-        {r = 1, g = 1, b = 1},        -- 1: White  
-        {r = 1, g = 0, b = 0},        -- 2: Red
-        {r = 0, g = 1, b = 0},        -- 3: Green
-        {r = 0, g = 0, b = 1},        -- 4: Blue
-        {r = 1, g = 1, b = 0},        -- 5: Yellow
-        {r = 1, g = 0, b = 1},        -- 6: Magenta
-        {r = 0, g = 1, b = 1},        -- 7: Cyan
-        {r = 0.5, g = 0.5, b = 0.5},  -- 8: Gray
-        {r = 0.9, g = 0.4, b = 0.1},  -- 9: Orange
-        {r = 0.4, g = 0.9, b = 0.1},  -- 10: Light Green
-        {r = 0.1, g = 0.4, b = 0.9},  -- 11: Light Blue
-        {r = 0.8, g = 0.2, b = 0.6},  -- 12: Pink
-        {r = 0.6, g = 0.2, b = 0.8},  -- 13: Purple
-        {r = 0.2, g = 0.8, b = 0.6},  -- 14: Teal
-        {r = 0.95, g = 0.95, b = 0.5} -- 15: Light Yellow
-    }
-    
-    -- Function to find closest color in sprlib palette
-    local function findClosestColor(r, g, b)
-        local bestIndex = 0
-        local bestDistance = math.huge
-        
-        for i, color in ipairs(sprlibColors) do
-            local distance = math.sqrt((r - color.r)^2 + (g - color.g)^2 + (b - color.b)^2)
-            if distance < bestDistance then
-                bestDistance = distance
-                bestIndex = i - 1  -- Convert to 0-based index
-            end
-        end
-        
-        return bestIndex
+    if result then
+        print("Conversion completed successfully!")
+    else
+        print("Conversion failed!")
     end
     
-    print("Using sprlib's predefined 16-color palette")
-    
-    -- Use 4 BPP since we're using the full 16-color palette
-    local bpp = 4
-    print("Using " .. bpp .. " bits per pixel (16 colors)")
-    
-    -- Convert image to indexed format using sprlib palette
-    local pixels = {}
-    local alpha_values = {}
-    
-    for y = 0, height - 1 do
-        for x = 0, width - 1 do
-            local r, g, b, a = imageData:getPixel(x, y)
-            
-            -- Store alpha value (0-1 range, will be quantized to 0-15)
-            table.insert(alpha_values, a)
-            
-            -- Always find closest color in sprlib palette (0-15)
-            local index = findClosestColor(r, g, b)
-            table.insert(pixels, index)
-        end
-    end
-    
-    -- Convert pixels to bit-packed data (matching sprlib's read_bits function)
-    local data = {}
-    local bitIndex = 0
-    local currentByte = 0
-    
-    for _, pixel in ipairs(pixels) do
-        -- Pack bits from left to right, matching the read_bits function
-        -- The read_bits function reads bits from left to right (MSB first)
-        currentByte = currentByte + (pixel * (2 ^ (8 - bpp - bitIndex * bpp)))
-        bitIndex = bitIndex + 1
-        
-        if bitIndex == math.floor(8 / bpp) then
-            table.insert(data, string.char(currentByte))
-            currentByte = 0
-            bitIndex = 0
-        end
-    end
-    
-    -- If we have remaining bits, pad the last byte
-    if bitIndex > 0 then
-        table.insert(data, string.char(currentByte))
-    end
-    
-    -- Convert alpha values to 4-bit (0-15 range)
-    local alpha_data = {}
-    for _, alpha in ipairs(alpha_values) do
-        local alpha_4bit = math.floor(alpha * 15 + 0.5)  -- Round to nearest integer
-        alpha_4bit = math.max(0, math.min(15, alpha_4bit))  -- Clamp to 0-15
-        table.insert(alpha_data, alpha_4bit)
-    end
-    
-    -- Pack alpha data (4 bits per alpha value, so 2 alpha values per byte)
-    local alpha_packed = {}
-    local alpha_bitIndex = 0
-    local alpha_currentByte = 0
-    
-    for _, alpha in ipairs(alpha_data) do
-        alpha_currentByte = alpha_currentByte + (alpha * (2 ^ (4 - alpha_bitIndex * 4)))
-        alpha_bitIndex = alpha_bitIndex + 1
-        
-        if alpha_bitIndex == 2 then  -- 2 alpha values per byte (4 bits each)
-            table.insert(alpha_packed, string.char(alpha_currentByte))
-            alpha_currentByte = 0
-            alpha_bitIndex = 0
-        end
-    end
-    
-    -- If we have a remaining alpha value, pad the last byte
-    if alpha_bitIndex > 0 then
-        table.insert(alpha_packed, string.char(alpha_currentByte))
-    end
-    
-    -- Write the .spr file
-    local file = love.filesystem.newFile(outputPath, "w")
-    if not file then
-        print("Error: Could not create .spr file: " .. outputPath)
-        love.event.quit()
-        return
-    end
-    
-    -- Write header
-    file:write("KSPR")  -- Magic
-    -- Write width and height as 16-bit little-endian
-    file:write(string.char(width % 256, math.floor(width / 256)))
-    file:write(string.char(height % 256, math.floor(height / 256)))
-    file:write(string.char(bpp))  -- BPP
-    file:write(string.char(1))  -- Alpha support flag
-    file:write(string.char(0, 0))  -- Padding
-    
-    -- Write pixel data
-    file:write(table.concat(data))
-    
-    -- Write alpha data
-    file:write(table.concat(alpha_packed))
-    
-    file:close()
-    
-    print("Created .spr file: " .. outputPath)
-    print("Conversion completed successfully!")
     love.event.quit()
 end
 
@@ -229,6 +96,12 @@ function love.draw()
 end
 EOF
     
+    # Copy the sprlib folder to temp directory
+    cp -r "$SCRIPT_DIR/sprlib" "$temp_dir/"
+    
+    # Copy the gcscript folder to temp directory
+    cp -r "$SCRIPT_DIR/gcscript" "$temp_dir/"
+    
     # Copy input file to temp directory
     cp "$input_file" "$temp_dir/"
     local temp_input=$(basename "$input_file")
@@ -236,11 +109,13 @@ EOF
     # Run the conversion
     echo -e "${BLUE}Converting:${NC} $input_file -> $output_file"
     if love "$temp_dir" "$temp_input" "$output_file" >/dev/null 2>&1; then
-        # Check if the .spr file was created in Love2D's save directory
+        # The GCScript converter writes to Love2D's save directory
+        # We need to find and copy the created file
         local temp_dir_name=$(basename "$temp_dir")
         local love_save_dir="$HOME/.local/share/love/$temp_dir_name"
+        
         if [ -f "$love_save_dir/$output_file" ]; then
-            cp "$love_save_dir/$output_file" "$(dirname "$input_file")/"
+            cp "$love_save_dir/$output_file" "$output_file"
             echo -e "${GREEN}✓ Successfully converted:${NC} $output_file"
         else
             echo -e "${YELLOW}Warning: .spr file created but not found in expected location${NC}"
@@ -248,8 +123,12 @@ EOF
             # Try to find the file in any Love2D save directory
             local found_file=$(find "$HOME/.local/share/love" -name "$output_file" -type f 2>/dev/null | head -1)
             if [ -n "$found_file" ]; then
-                cp "$found_file" "$(dirname "$input_file")/"
+                cp "$found_file" "$output_file"
                 echo -e "${GREEN}✓ Found and copied file from:${NC} $found_file"
+            else
+                echo -e "${RED}✗ Conversion failed: Output file not found${NC}" >&2
+                rm -rf "$temp_dir"
+                return 1
             fi
         fi
         rm -rf "$temp_dir"

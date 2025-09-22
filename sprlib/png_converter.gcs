@@ -1,0 +1,170 @@
+// PNG to .spr converter for sprlib
+
+import { colors } from "sprlib.colors"
+
+priv fn find_closest_color(r, g, b) {
+    local sprlibColors = colors()
+    local bestIndex = 0
+    local bestDistance = math.huge
+    
+    local i = 0
+    while (i < 16) {
+        local color = sprlibColors[i]
+        local distance = math.sqrt((r - color.r)^2 + (g - color.g)^2 + (b - color.b)^2)
+        if (distance < bestDistance) {
+            bestDistance = distance
+            bestIndex = i
+        }
+        i = i + 1
+    }
+    
+    return bestIndex
+}
+
+priv fn pack_pixels(pixels, bpp) {
+    local data = {}
+    local bitIndex = 0
+    local currentByte = 0
+    
+    local i = 0
+    while (i < pixels.length) {
+        local pixel = pixels[i]
+        // Pack bits from left to right, matching the read_bits function
+        // The read_bits function reads bits from left to right (MSB first)
+        currentByte = currentByte + (pixel * (2 ^ (8 - bpp - bitIndex * bpp)))
+        bitIndex = bitIndex + 1
+        
+        if (bitIndex == math.floor(8 / bpp)) {
+            data:push(string.char(currentByte))
+            currentByte = 0
+            bitIndex = 0
+        }
+        i = i + 1
+    }
+    
+    // If we have remaining bits, pad the last byte
+    if (bitIndex > 0) {
+        data:push(string.char(currentByte))
+    }
+    
+    return data
+}
+
+priv fn pack_alpha_values(alpha_values) {
+    local alpha_data = {}
+    local i = 0
+    while (i < alpha_values.length) {
+        local alpha = alpha_values[i]
+        local alpha_4bit = math.floor(alpha * 15 + 0.5)  // Round to nearest integer
+        alpha_4bit = math.max(0, math.min(15, alpha_4bit))  // Clamp to 0-15
+        alpha_data:push(alpha_4bit)
+        i = i + 1
+    }
+    
+    // Pack alpha data (4 bits per alpha value, so 2 alpha values per byte)
+    local alpha_packed = {}
+    local alpha_bitIndex = 0
+    local alpha_currentByte = 0
+    
+    local i = 0
+    while (i < alpha_data.length) {
+        local alpha = alpha_data[i]
+        alpha_currentByte = alpha_currentByte + (alpha * (2 ^ (4 - alpha_bitIndex * 4)))
+        alpha_bitIndex = alpha_bitIndex + 1
+        
+        if (alpha_bitIndex == 2) {  // 2 alpha values per byte (4 bits each)
+            alpha_packed:push(string.char(alpha_currentByte))
+            alpha_currentByte = 0
+            alpha_bitIndex = 0
+        }
+        i = i + 1
+    }
+    
+    // If we have a remaining alpha value, pad the last byte
+    if (alpha_bitIndex > 0) {
+        alpha_packed:push(string.char(alpha_currentByte))
+    }
+    
+    return alpha_packed
+}
+
+pub fn convert_png_to_spr(input_path, output_path) {
+    // Load the PNG image using Love2D's image loading
+    local imageData = love.image.newImageData(input_path)
+    if (!imageData) {
+        error("Could not load PNG file: " + input_path)
+    }
+    
+    local width = imageData:getWidth()
+    local height = imageData:getHeight()
+    
+    print("Converting PNG: " + input_path + " -> " + output_path)
+    print("Image dimensions: " + width + "x" + height)
+    print("Using sprlib's predefined 16-color palette")
+    
+    // Use 4 BPP since we're using the full 16-color palette
+    local bpp = 4
+    print("Using " + bpp + " bits per pixel (16 colors)")
+    
+    // Convert image to indexed format using sprlib palette
+    local pixels = {}
+    local alpha_values = {}
+    
+    local y = 0
+    while (y < height) {
+        local x = 0
+        while (x < width) {
+            local r, g, b, a = imageData:getPixel(x, y)
+            
+            // Store alpha value (0-1 range, will be quantized to 0-15)
+            alpha_values:push(a)
+            
+            // Always find closest color in sprlib palette (0-15)
+            local index = find_closest_color(r, g, b)
+            pixels:push(index)
+            x = x + 1
+        }
+        y = y + 1
+    }
+    
+    // Convert pixels to bit-packed data
+    local data = pack_pixels(pixels, bpp)
+    
+    // Convert alpha values to 4-bit and pack them
+    local alpha_packed = pack_alpha_values(alpha_values)
+    
+    // Create output file using Love2D filesystem operations
+    local file = love.filesystem.newFile(output_path, "w")
+    if (!file) {
+        error("Could not create .spr file: " + output_path)
+    }
+    
+    // Write header
+    file:write("KSPR")  // Magic
+    // Write width and height as 16-bit little-endian
+    file:write(string.char(width % 256, math.floor(width / 256)))
+    file:write(string.char(height % 256, math.floor(height / 256)))
+    file:write(string.char(bpp))  // BPP
+    file:write(string.char(1))  // Alpha support flag
+    file:write(string.char(0, 0))  // Padding
+    
+    // Write pixel data
+    local i = 0
+    while (i < data.length) {
+        file:write(data[i])
+        i = i + 1
+    }
+    
+    // Write alpha data
+    local i = 0
+    while (i < alpha_packed.length) {
+        file:write(alpha_packed[i])
+        i = i + 1
+    }
+    
+    file:close()
+    
+    print("Created .spr file: " + output_path)
+    print("Conversion completed successfully!")
+    return true
+}
