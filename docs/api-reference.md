@@ -296,13 +296,13 @@ priv fn love.load() {
 }
 
 priv fn love.update(dt) {
-    if (love.keyboard.isDown("left")) then
+    if (love.keyboard.isDown("left")) {
         x = x - 100 * dt
-    end
-    if (love.keyboard.isDown("right")) then
+    }
+    if (love.keyboard.isDown("right")) {
         x = x + 100 * dt
-    end
-end
+    }
+}
 
 priv fn love.draw() {
     love.graphics.setColor(0.1, 0.1, 0.1, 1)
@@ -310,7 +310,7 @@ priv fn love.draw() {
     
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(player, x, y, 0, 4, 4)
-end
+}
 ```
 
 ### Sprite Animation
@@ -323,19 +323,19 @@ priv fn love.load() {
     for (i = 1, 4) do
         sprites[i] = load("frame" .. i .. ".spr")
         sprites[i]:setFilter("nearest", "nearest")
-    end
-end
+    }
+}
 
 priv fn love.update(dt) {
     frameTime = frameTime + dt
-    if (frameTime >= 0.1) then
+    if (frameTime >= 0.1) {
         frameTime = 0
         currentFrame = currentFrame + 1
-        if (currentFrame > 4) then
+        if (currentFrame > 4) {
             currentFrame = 1
-        end
-    end
-end
+        }
+    }
+}
 
 priv fn love.draw() {
     love.graphics.draw(sprites[currentFrame], 100, 100, 0, 4, 4)
